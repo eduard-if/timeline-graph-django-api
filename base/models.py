@@ -7,7 +7,7 @@ from colorfield.fields import ColorField
 
 
 class Timeline(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=255, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     imageUrl = models.URLField(max_length=1000, null=True, blank=True)
