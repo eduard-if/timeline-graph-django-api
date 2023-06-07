@@ -14,10 +14,10 @@ class Timeline(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     lastUpdated = models.DateTimeField(auto_now=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    bgColor = ColorField(format='hex')
-    textColor = ColorField(format='hex')
-    titleColor = ColorField(format='hex')
-    borderColor = ColorField(format='hex')
+    bgColor = ColorField(format='hex', default='#f8f9fa')
+    textColor = ColorField(format='hex', default='#343a40')
+    titleColor = ColorField(format='hex', default='#343a40')
+    borderColor = ColorField(format='hex', default='#adb5bd')
 
     def __str__(self):
         return self.title
@@ -28,6 +28,9 @@ class Item(models.Model):
     title = models.CharField(max_length=255, null=False, blank=False)
     startDate = models.DateTimeField(null=False, blank=False)
     endDate = models.DateTimeField(null=True, blank=True)
+    bgColor = ColorField(format='hex', default='#f8f9fa')
+    titleColor = ColorField(format='hex', default='#343a40')
+    typeOfItem = models.CharField(max_length=10, null=True, blank=True)
 
     def __str__(self):
         return self.title
