@@ -25,12 +25,12 @@ class Timeline(models.Model):
 
 class Item(models.Model):
     timeline = models.ForeignKey(Timeline, on_delete=models.CASCADE)
-    title = models.CharField(max_length=255, null=False, blank=False)
-    startDate = models.DateTimeField(null=False, blank=False)
-    endDate = models.DateTimeField(null=True, blank=True)
-    bgColor = ColorField(format='hex', default='#f8f9fa')
-    titleColor = ColorField(format='hex', default='#343a40')
-    typeOfItem = models.CharField(max_length=10, null=True, blank=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255, null=False, blank=True)
+    start = models.DateTimeField(null=False, blank=False)
+    end = models.DateTimeField(null=True, blank=True)
+    type = models.CharField(max_length=10, null=True, blank=True)
+    content = models.TextField(null=True, blank=False)
 
     def __str__(self):
         return self.title

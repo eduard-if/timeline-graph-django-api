@@ -25,13 +25,13 @@ def createTimeline(request):
         data['title'] = f'Untitled {datetime.now()}'
 
     if data['bgColor'] == '':
-        data['bgColor'] = '#f8f9fa'
+        data['bgColor'] = '#343a40'
     if data['textColor'] == '':
-        data['textColor'] = '#343a40'
+        data['textColor'] = '#f8f9fa'
     if data['titleColor'] == '':
-        data['titleColor'] = '#343a40'
+        data['titleColor'] = '#f8f9fa'
     if data['borderColor'] == '':
-        data['borderColor'] = '#adb5bd'
+        data['borderColor'] = '#343a40'
 
     timeline = Timeline.objects.create(
         title=data['title'],
@@ -76,8 +76,9 @@ def getItems(request, pk):
     except Timeline.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    serializer = ItemSerializer(items, many=True)
-    return Response(serializer.data)
+    serializerItems = ItemSerializer(items, many=True)
+    serializerTimeline = TimelineSerializer(timeline, many=False)
+    return Response({'timeline': serializerTimeline.data, 'items': serializerItems.data})
 
 
 @api_view(['POST'])
@@ -89,16 +90,15 @@ def createItem(request, pk):
     item = Item.objects.create(
         timeline=timeline,
         title=data['title'],
-        startDate=data['startDate'],
-        endDate=data['endDate'],
-        bgColor=data['bgColor'],
-        titleColor=data['titleColor'],
-        typeOfItem=data['typeOfItem']
+        start=data['start'],
+        end=data['end'],
+        type=data['type'],
+        style=data['style']
     )
 
-    serializer = ItemSerializer(item, many=False)
-
-    return Response(serializer.data)
+    serializerItem = ItemSerializer(item, many=False)
+    serializerTimeline = TimelineSerializer(timeline, many=False)
+    return Response({'timeline': serializerTimeline.data, 'item': serializerItem.data})
 
 
 @api_view(['PUT'])
@@ -111,12 +111,13 @@ def updateItem(request, pk, id):
     except Item.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    serializer = ItemSerializer(instance=item, data=data, many=False)
+    serializerItem = ItemSerializer(instance=item, data=data, many=False)
+    serializerTimeline = TimelineSerializer(timeline, many=False)
 
-    if serializer.is_valid():
-        serializer.save()
+    if serializerItem.is_valid():
+        serializerItem.save()
 
-    return Response(serializer.data)
+    return Response({'timeline': serializerTimeline.data, 'item': serializerItem.data})
 
 
 @api_view(['DELETE'])
@@ -129,4 +130,4 @@ def deleteItem(request, pk, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     item.delete()
-    return Response('Item deleted!')
+    return Response(f'Item with id: {id} from Timeline: {timeline.id} deleted!')
