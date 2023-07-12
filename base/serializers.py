@@ -9,6 +9,8 @@ class TimelineSerializer(serializers.ModelSerializer):
 
 
 class ItemSerializer(serializers.ModelSerializer):
+    end = serializers.DateTimeField(allow_null=True, required=False)
+
     class Meta:
         model = Item
         fields = '__all__'
