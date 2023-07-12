@@ -2,7 +2,7 @@ from django.urls import path
 from base.views import timeline_views as views
 
 urlpatterns = [
-    path('', views.getTimelines, name='timelines'),
+    path('<str:orderBy>', views.getTimelines, name='timelines'),
     path('create/', views.createTimeline, name='timelines-create'),
     path('<str:pk>/update/', views.updateTimeline, name='timelines-update'),
     path('<str:pk>/delete/', views.deleteTimeline, name='timelines-delete'),
