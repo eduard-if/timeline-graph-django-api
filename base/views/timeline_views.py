@@ -11,8 +11,8 @@ from datetime import datetime
 
 
 @api_view(['GET'])
-def getTimelines(request):
-    timelines = Timeline.objects.all().order_by('-lastUpdated')
+def getTimelines(request, orderBy):
+    timelines = Timeline.objects.all().order_by(orderBy)
     serializer = TimelineSerializer(timelines, many=True)
     return Response(serializer.data)
 
@@ -23,15 +23,6 @@ def createTimeline(request):
 
     if data['title'] == '':
         data['title'] = f'Untitled {datetime.now()}'
-
-    if data['bgColor'] == '':
-        data['bgColor'] = '#343a40'
-    if data['textColor'] == '':
-        data['textColor'] = '#f8f9fa'
-    if data['titleColor'] == '':
-        data['titleColor'] = '#f8f9fa'
-    if data['borderColor'] == '':
-        data['borderColor'] = '#343a40'
 
     timeline = Timeline.objects.create(
         title=data['title'],
@@ -65,7 +56,7 @@ def updateTimeline(request, pk):
 def deleteTimeline(request, pk):
     timeline = Timeline.objects.get(id=pk)
     timeline.delete()
-    return Response('Timeline deleted!')
+    return Response({'timeline_id': pk})
 
 
 @api_view(['GET'])
@@ -78,7 +69,15 @@ def getItems(request, pk):
 
     serializerItems = ItemSerializer(items, many=True)
     serializerTimeline = TimelineSerializer(timeline, many=False)
-    return Response({'timeline': serializerTimeline.data, 'items': serializerItems.data})
+
+    response_data = {'timeline': serializerTimeline.data,
+                     'items': serializerItems.data}
+
+    for item in response_data['items']:
+        if item['end'] is None:
+            del item['end']
+
+    return Response(response_data)
 
 
 @api_view(['POST'])
@@ -87,18 +86,36 @@ def createItem(request, pk):
 
     timeline = Timeline.objects.get(id=pk)
 
+    if data['end'] == '':
+        data['end'] = None
+
     item = Item.objects.create(
         timeline=timeline,
         title=data['title'],
         start=data['start'],
         end=data['end'],
         type=data['type'],
-        style=data['style']
+        style=data['style'],
+        content=data['content'],
+        notesDetails=data['notesDetails'],
+        bgColor=data['bgColor'],
+        textColor=data['textColor'],
+        borderColor=data['borderColor'],
+        fontSize=data['fontSize'],
+        fontStyle=data['fontStyle'],
+        fontWeight=data['fontWeight']
     )
 
     serializerItem = ItemSerializer(item, many=False)
     serializerTimeline = TimelineSerializer(timeline, many=False)
-    return Response({'timeline': serializerTimeline.data, 'item': serializerItem.data})
+
+    response_data = {'timeline': serializerTimeline.data,
+                     'item': serializerItem.data}
+
+    if response_data['item']['end'] is None:
+        del response_data['item']['end']
+
+    return Response(response_data)
 
 
 @api_view(['PUT'])
